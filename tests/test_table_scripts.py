@@ -74,3 +74,40 @@ def test_generate_agent_spec_table(tmp_path):
         for row in rows
     )
     assert "stability_filtered" in md_path.read_text()
+
+
+def test_generate_priority_a_result_tables(tmp_path):
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/tables/generate_priority_a_result_tables.py",
+            "--release-dir",
+            str(REPO_ROOT / "artifacts" / "release"),
+            "--output-dir",
+            str(tmp_path),
+        ],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    pairwise_path = tmp_path / "pairwise_results_with_effect_sizes.csv"
+    adjusted_path = tmp_path / "adjusted_p_values.csv"
+    key_claim_path = tmp_path / "key_claim_checks.md"
+    assert pairwise_path.exists()
+    assert (tmp_path / "pairwise_results_with_effect_sizes.md").exists()
+    assert (tmp_path / "pairwise_results_with_effect_sizes.tex").exists()
+    assert adjusted_path.exists()
+    assert (tmp_path / "adjusted_p_values.md").exists()
+    assert (tmp_path / "adjusted_p_values.tex").exists()
+    assert key_claim_path.exists()
+
+    pairwise_rows = list(csv.DictReader(pairwise_path.open()))
+    assert pairwise_rows
+    assert {"p_raw", "cohen_dz", "n_seeds"}.issubset(pairwise_rows[0])
+
+    adjusted_rows = list(csv.DictReader(adjusted_path.open()))
+    assert adjusted_rows
+    assert {"p_holm", "p_bh", "correction_family"}.issubset(adjusted_rows[0])

@@ -5,7 +5,41 @@ Verify SCM invariants hold across all scenarios and phases.
 import numpy as np
 
 from v3_health.core.scm import generate_scenario1, generate_scenario2, generate_scenario3
-from v3_health.core.outcome_resolver import resolve_outcome
+from v3_health.core.outcome_resolver import (
+    resolve_outcome,
+    symmetric_severity_penalty,
+    treatment_mismatch_gap,
+)
+from v3_health.core.types import LatentPatientState
+
+
+def _latent(true_health: float, optimal_treatment: int) -> LatentPatientState:
+    return LatentPatientState(
+        patient_id=1,
+        ses=1,
+        true_health=true_health,
+        access_to_care=0.5,
+        measurement_prob=0.5,
+        optimal_treatment=optimal_treatment,
+        group=0,
+    )
+
+
+def test_treatment_mismatch_gap_boundaries():
+    latent = _latent(true_health=0.75, optimal_treatment=3)
+
+    assert treatment_mismatch_gap(3, latent) == 0
+    assert treatment_mismatch_gap(2, latent) == 1
+    assert treatment_mismatch_gap(0, latent) == 3
+
+
+def test_symmetric_severity_penalty_boundaries():
+    latent = _latent(true_health=0.75, optimal_treatment=2)
+
+    assert symmetric_severity_penalty(2, latent, symmetric=True) == 0.0
+    assert symmetric_severity_penalty(0, latent, symmetric=True) == 1.5
+    assert symmetric_severity_penalty(3, latent, symmetric=True) == 0.75
+    assert symmetric_severity_penalty(3, latent, symmetric=False) == 0.0
 
 
 def test_outcome_independent_of_ses():

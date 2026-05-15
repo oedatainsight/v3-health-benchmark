@@ -15,3 +15,12 @@ hyperparams:
   workflow_initial_weight_symptom: 0.40
   workflow_initial_weight_labs: 0.30
   workflow_initial_weight_risk: 0.30
+  workflow_lab_mean_weight: 0.70
+  workflow_lab_max_weight: 0.30
+  workflow_disagreement_margin: 0.05
+  workflow_min_records_for_reweight: 30
+  workflow_min_signal_values: 20
+  workflow_min_split_count: 5
+  workflow_quality_baseline: 0.50
+  workflow_quality_gain: 0.50
+  workflow_quality_diff_scale: 0.50

@@ -1,0 +1,82 @@
+\begin{tabular}{llllll}
+\toprule
+agent & label & family & parameter & value & source \\
+\midrule
+baseline & Baseline & policy baseline & baseline\_action\_thresholds & [0.25, 0.5, 0.75] & configs/agents/baseline.yaml \\
+baseline & Baseline & policy baseline & baseline\_max\_missing\_before\_failstate & 0.6 & configs/agents/baseline.yaml \\
+baseline & Baseline & policy baseline & baseline\_disagreement\_escalation & 0.35 & configs/agents/baseline.yaml \\
+baseline & Baseline & policy baseline & baseline\_failstate\_safety\_margin & 0.1 & configs/agents/baseline.yaml \\
+baseline & Baseline & policy baseline & baseline\_adaptive\_window & 30 & configs/agents/baseline.yaml \\
+baseline & Baseline & policy baseline & baseline\_adaptive\_failure\_trigger & 0.4 & configs/agents/baseline.yaml \\
+baseline & Baseline & policy baseline & baseline\_adaptive\_caution\_bump & 0.05 & configs/agents/baseline.yaml \\
+baseline & Baseline & policy baseline & baseline\_decay\_total\_threshold & 60 & configs/agents/baseline.yaml \\
+baseline & Baseline & policy baseline & baseline\_decay\_factor & 0.5 & configs/agents/baseline.yaml \\
+workflow & Workflow & adaptive workflow heuristic & action\_thresholds & [0.25, 0.5, 0.75] & configs/agents/workflow.yaml \\
+workflow & Workflow & adaptive workflow heuristic & red\_flag\_symptom & 0.85 & configs/agents/workflow.yaml \\
+workflow & Workflow & adaptive workflow heuristic & red\_flag\_floor & 0.75 & configs/agents/workflow.yaml \\
+workflow & Workflow & adaptive workflow heuristic & low\_avail\_threshold & 0.4 & configs/agents/workflow.yaml \\
+workflow & Workflow & adaptive workflow heuristic & disagree\_spread & 0.35 & configs/agents/workflow.yaml \\
+workflow & Workflow & adaptive workflow heuristic & adapt\_every & 50 & configs/agents/workflow.yaml \\
+workflow & Workflow & adaptive workflow heuristic & adapt\_blend & 0.3 & configs/agents/workflow.yaml \\
+workflow & Workflow & adaptive workflow heuristic & adapt\_window & 200 & configs/agents/workflow.yaml \\
+workflow & Workflow & adaptive workflow heuristic & mnar\_bump\_workflow\_base & 0.03 & configs/agents/workflow.yaml \\
+workflow & Workflow & adaptive workflow heuristic & mnar\_bump\_workflow\_slope & 0.07 & configs/agents/workflow.yaml \\
+workflow & Workflow & adaptive workflow heuristic & workflow\_initial\_weight\_symptom & 0.4 & configs/agents/workflow.yaml \\
+workflow & Workflow & adaptive workflow heuristic & workflow\_initial\_weight\_labs & 0.3 & configs/agents/workflow.yaml \\
+workflow & Workflow & adaptive workflow heuristic & workflow\_initial\_weight\_risk & 0.3 & configs/agents/workflow.yaml \\
+workflow & Workflow & adaptive workflow heuristic & workflow\_lab\_mean\_weight & 0.7 & configs/agents/workflow.yaml \\
+workflow & Workflow & adaptive workflow heuristic & workflow\_lab\_max\_weight & 0.3 & configs/agents/workflow.yaml \\
+workflow & Workflow & adaptive workflow heuristic & workflow\_disagreement\_margin & 0.05 & configs/agents/workflow.yaml \\
+workflow & Workflow & adaptive workflow heuristic & workflow\_min\_records\_for\_reweight & 30 & configs/agents/workflow.yaml \\
+workflow & Workflow & adaptive workflow heuristic & workflow\_min\_signal\_values & 20 & configs/agents/workflow.yaml \\
+workflow & Workflow & adaptive workflow heuristic & workflow\_min\_split\_count & 5 & configs/agents/workflow.yaml \\
+workflow & Workflow & adaptive workflow heuristic & workflow\_quality\_baseline & 0.5 & configs/agents/workflow.yaml \\
+workflow & Workflow & adaptive workflow heuristic & workflow\_quality\_gain & 0.5 & configs/agents/workflow.yaml \\
+workflow & Workflow & adaptive workflow heuristic & workflow\_quality\_diff\_scale & 0.5 & configs/agents/workflow.yaml \\
+causal\_light & Causal Light & structural-prior ablation & causal\_light\_risk\_blend & 0.3 & configs/agents/causal\_light.yaml \\
+stability\_filtered & Stability-Filtered & structurally constrained adaptive heuristic & stratum\_edges & [0.33, 0.66] & configs/agents/stability\_filtered.yaml \\
+stability\_filtered & Stability-Filtered & structurally constrained adaptive heuristic & mnar\_bump\_causal & 0.1 & configs/agents/stability\_filtered.yaml \\
+stability\_filtered & Stability-Filtered & structurally constrained adaptive heuristic & mnar\_threshold\_causal & 0.5 & configs/agents/stability\_filtered.yaml \\
+stability\_filtered & Stability-Filtered & structurally constrained adaptive heuristic & stable\_threshold & 0.55 & configs/agents/stability\_filtered.yaml \\
+stability\_filtered & Stability-Filtered & structurally constrained adaptive heuristic & unstable\_threshold & 0.4 & configs/agents/stability\_filtered.yaml \\
+stability\_filtered & Stability-Filtered & structurally constrained adaptive heuristic & drift\_normalization & 0.4 & configs/agents/stability\_filtered.yaml \\
+stability\_filtered & Stability-Filtered & structurally constrained adaptive heuristic & action\_success\_override\_floor & 0.55 & configs/agents/stability\_filtered.yaml \\
+stability\_filtered & Stability-Filtered & structurally constrained adaptive heuristic & action\_success\_max\_level\_shift & 1 & configs/agents/stability\_filtered.yaml \\
+stability\_filtered & Stability-Filtered & structurally constrained adaptive heuristic & causal\_window & 80 & configs/agents/stability\_filtered.yaml \\
+stability\_filtered & Stability-Filtered & structurally constrained adaptive heuristic & causal\_min\_cell\_samples & 12 & configs/agents/stability\_filtered.yaml \\
+stability\_filtered & Stability-Filtered & structurally constrained adaptive heuristic & causal\_min\_action\_success\_samples & 8 & configs/agents/stability\_filtered.yaml \\
+stability\_filtered & Stability-Filtered & structurally constrained adaptive heuristic & causal\_default\_stability & 0.5 & configs/agents/stability\_filtered.yaml \\
+stability\_filtered & Stability-Filtered & structurally constrained adaptive heuristic & causal\_stable\_risk\_blend & 0.3 & configs/agents/stability\_filtered.yaml \\
+stability\_filtered & Stability-Filtered & structurally constrained adaptive heuristic & causal\_warmup\_risk\_blend & 0.2 & configs/agents/stability\_filtered.yaml \\
+stability\_filtered & Stability-Filtered & structurally constrained adaptive heuristic & causal\_uncertain\_risk\_blend & 0.15 & configs/agents/stability\_filtered.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_state\_centers & [0.125, 0.375, 0.625, 0.875] & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_feature\_std\_floor & 0.08 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_bias\_window & 240 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_exploration\_steps & 240 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_exploration\_weight & 0.1 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_outcome\_prior\_alpha & 1.0 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_outcome\_prior\_beta & 1.0 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_bias\_ewma & 0.35 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_bias\_clip & 0.45 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_state\_prior\_mass & 4.0 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_likelihood\_weight\_symptom & 1.15 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_likelihood\_weight\_lab & 0.95 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_likelihood\_weight\_risk & 0.85 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_critical\_posterior\_threshold & 0.35 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_high\_severity\_mass\_threshold & 0.55 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_high\_severity\_need\_threshold & 1.8 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_gaussian\_initial\_weight & 2.0 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_gaussian\_initial\_m2 & 0.02 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_access\_weight\_prior\_utilization & 0.28 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_access\_weight\_insurance & 0.22 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_access\_weight\_education & 0.18 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_access\_weight\_lab\_availability & 0.22 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_access\_weight\_deprivation\_inverse & 0.1 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_clinical\_anchor\_symptom\_weight & 0.65 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_clinical\_anchor\_lab\_weight & 0.35 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_risk\_reliability\_base & 0.3 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_risk\_reliability\_access\_weight & 0.5 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_risk\_reliability\_lab\_bonus & 0.2 & configs/agents/structural\_causal.yaml \\
+structural\_causal & Structural Causal & explicit structural causal model & structural\_min\_bias\_regression\_samples & 24 & configs/agents/structural\_causal.yaml \\
+\bottomrule
+\end{tabular}

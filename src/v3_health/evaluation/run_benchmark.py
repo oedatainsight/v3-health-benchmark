@@ -1,22 +1,13 @@
 """Main benchmark runner. Orchestrates all scenarios x phases x agents x seeds."""
 
 from functools import partial
+from importlib import import_module
 from pathlib import Path
 
 import numpy as np
 
 from v3_health.core.types import AgentObservation
 from v3_health.core.config import HEALTHCARE_CONFIG as C
-from v3_health.agents.baseline_agent import BaselineAgent
-from v3_health.agents.workflow_agent import WorkflowAgent
-from v3_health.agents.causal_light_agent import CausalLightAgent
-from v3_health.agents.causal_agent import CausalAgent
-from v3_health.agents.structural_causal_agent import StructuralCausalAgent
-from v3_health.scenarios import (
-    treatment_allocation,
-    missing_data_bias,
-    historical_bias_feedback,
-)
 from v3_health.evaluation.intervention_auditor import InterventionAuditor
 from v3_health.evaluation.fairness_metrics import compute_metrics, compute_phase_comparison
 from v3_health.evaluation.statistical_analysis import (
@@ -33,9 +24,9 @@ from v3_health.evaluation.statistical_analysis import (
 
 
 SCENARIOS = {
-    "treatment_allocation_confounding": treatment_allocation,
-    "missing_data_bias": missing_data_bias,
-    "historical_bias_feedback": historical_bias_feedback,
+    "treatment_allocation_confounding": "v3_health.scenarios.treatment_allocation",
+    "missing_data_bias": "v3_health.scenarios.missing_data_bias",
+    "historical_bias_feedback": "v3_health.scenarios.historical_bias_feedback",
 }
 
 # Per-scenario inputs to the post-hoc parent-alignment audit. The parent
@@ -50,11 +41,11 @@ SCENARIO_ALIGNMENT_AUDIT = {
 }
 
 AGENTS = {
-    "baseline": BaselineAgent,
-    "workflow": WorkflowAgent,
-    "causal_light": CausalLightAgent,
-    "stability_filtered": CausalAgent,
-    "structural_causal": StructuralCausalAgent,
+    "baseline": "v3_health.agents.baseline_agent:BaselineAgent",
+    "workflow": "v3_health.agents.workflow_agent:WorkflowAgent",
+    "causal_light": "v3_health.agents.causal_light_agent:CausalLightAgent",
+    "stability_filtered": "v3_health.agents.causal_agent:CausalAgent",
+    "structural_causal": "v3_health.agents.structural_causal_agent:StructuralCausalAgent",
 }
 
 AGENT_LABELS = {
@@ -88,14 +79,35 @@ COUNTERFACTUAL_NOTE = (
 )
 
 
-def _primary_claim_agent() -> str:
-    if "structural_causal" in AGENTS:
+def _load_registered(spec: str):
+    if ":" not in spec:
+        return import_module(spec)
+    module_name, attr_name = spec.split(":", 1)
+    return getattr(import_module(module_name), attr_name)
+
+
+def _select_registered(config_key: str, registry: dict, label: str) -> dict:
+    """Return registered implementations in the order named by config."""
+    configured = C.get(config_key) or list(registry)
+    selected = {}
+    unknown = [name for name in configured if name not in registry]
+    if unknown:
+        known = ", ".join(sorted(registry))
+        bad = ", ".join(str(name) for name in unknown)
+        raise ValueError(f"Unknown {label} in config: {bad}. Known {label}s: {known}")
+    for name in configured:
+        selected[name] = _load_registered(registry[name])
+    return selected
+
+
+def _primary_claim_agent(active_agents: dict) -> str:
+    if "structural_causal" in active_agents:
         return "structural_causal"
-    if "stability_filtered" in AGENTS:
+    if "stability_filtered" in active_agents:
         return "stability_filtered"
-    if "causal_light" in AGENTS:
+    if "causal_light" in active_agents:
         return "causal_light"
-    return next(iter(AGENTS))
+    return next(iter(active_agents))
 
 
 def run_single(scenario_name, scenario_module, agent_name, agent_class, seed, auditor):
@@ -155,21 +167,23 @@ def run_full_benchmark(output_dir: str = "results"):
     output_path.mkdir(parents=True, exist_ok=True)
 
     auditor = InterventionAuditor(str(output_path))
-    active_agents = list(AGENTS.keys())
+    active_scenarios = _select_registered("scenarios", SCENARIOS, "scenario")
+    active_agents = _select_registered("agents", AGENTS, "agent")
+    active_agent_names = list(active_agents)
     agent_labels = {
         agent: C.get("agent_labels", {}).get(
             agent,
             AGENT_LABELS.get(agent, agent.replace("_", " ").title()),
         )
-        for agent in active_agents
+        for agent in active_agent_names
     }
-    primary_claim_agent = _primary_claim_agent()
+    primary_claim_agent = _primary_claim_agent(active_agents)
 
-    total_runs = len(SCENARIOS) * len(AGENTS) * C["n_seeds"]
+    total_runs = len(active_scenarios) * len(active_agents) * C["n_seeds"]
     current = 0
 
-    for scenario_name, scenario_module in SCENARIOS.items():
-        for agent_name, agent_class in AGENTS.items():
+    for scenario_name, scenario_module in active_scenarios.items():
+        for agent_name, agent_class in active_agents.items():
             for seed in range(C["n_seeds"]):
                 current += 1
                 print(f"[{current}/{total_runs}] {scenario_name} | {agent_name} | seed={seed}")
@@ -178,9 +192,8 @@ def run_full_benchmark(output_dir: str = "results"):
     auditor.save("audit_log.jsonl")
 
     scenario_results: dict = {}
-    for scenario_name in SCENARIOS:
+    for scenario_name, scenario_module in active_scenarios.items():
         parent_var, confounder_vars = SCENARIO_ALIGNMENT_AUDIT[scenario_name]
-        scenario_module = SCENARIOS[scenario_name]
         # Sanity check: declared parent must agree with the scenario's
         # exported TRUE_PARENTS dict.
         declared_parents = scenario_module.TRUE_PARENTS.get("treatment_needed", set())
@@ -197,7 +210,7 @@ def run_full_benchmark(output_dir: str = "results"):
             confounder_vars=confounder_vars,
         )
         scenario_results[scenario_name] = {}
-        for agent_name in AGENTS:
+        for agent_name in active_agents:
             records = auditor.get_records(scenario=scenario_name, agent_type=agent_name)
             scenario_results[scenario_name][agent_name] = {
                 "overall": metrics_fn(records),
@@ -222,8 +235,8 @@ def run_full_benchmark(output_dir: str = "results"):
             "n_seeds": C["n_seeds"],
             "n_patients_per_phase": C["n_patients_per_phase"],
             "phases": C["phases"],
-            "scenarios": list(SCENARIOS.keys()),
-            "agents": active_agents,
+            "scenarios": list(active_scenarios),
+            "agents": active_agent_names,
             "primary_claim_agent": primary_claim_agent,
             "primary_claim_label": agent_labels.get(primary_claim_agent, primary_claim_agent),
             "agent_labels": agent_labels,
@@ -232,11 +245,11 @@ def run_full_benchmark(output_dir: str = "results"):
                     agent,
                     AGENT_FAMILIES.get(agent, "unspecified"),
                 )
-                for agent in active_agents
+                for agent in active_agent_names
             },
             "query_support": {
                 agent: QUERY_SUPPORT.get(agent, "unspecified")
-                for agent in active_agents
+                for agent in active_agent_names
             },
             "counterfactual_note": COUNTERFACTUAL_NOTE,
             "confidence_interval": C.get(

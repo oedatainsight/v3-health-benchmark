@@ -50,6 +50,15 @@ _MNAR_SLOPE = float(_HP["mnar_bump_workflow_slope"])
 _INIT_W_SYMPTOM = float(_HP["workflow_initial_weight_symptom"])
 _INIT_W_LABS = float(_HP["workflow_initial_weight_labs"])
 _INIT_W_RISK = float(_HP["workflow_initial_weight_risk"])
+_LAB_MEAN_WEIGHT = float(_HP["workflow_lab_mean_weight"])
+_LAB_MAX_WEIGHT = float(_HP["workflow_lab_max_weight"])
+_DISAGREEMENT_MARGIN = float(_HP["workflow_disagreement_margin"])
+_MIN_RECORDS_FOR_REWEIGHT = int(_HP["workflow_min_records_for_reweight"])
+_MIN_SIGNAL_VALUES = int(_HP["workflow_min_signal_values"])
+_MIN_SPLIT_COUNT = int(_HP["workflow_min_split_count"])
+_QUALITY_BASELINE = float(_HP["workflow_quality_baseline"])
+_QUALITY_GAIN = float(_HP["workflow_quality_gain"])
+_QUALITY_DIFF_SCALE = float(_HP["workflow_quality_diff_scale"])
 
 
 def _score_to_action(score: float) -> int:
@@ -97,7 +106,7 @@ class WorkflowAgent(BaseAgent):
             lab_vals = list(avail.values())
             avg_lab = float(np.mean(lab_vals))
             max_lab = float(np.max(lab_vals))
-            lab_signal = 0.7 * avg_lab + 0.3 * max_lab
+            lab_signal = _LAB_MEAN_WEIGHT * avg_lab + _LAB_MAX_WEIGHT * max_lab
             steps.append(
                 f"labs {n_avail}/{n_total} avg={avg_lab:.2f} max={max_lab:.2f}"
             )
@@ -136,12 +145,12 @@ class WorkflowAgent(BaseAgent):
         spread = max(signals) - min(signals)
         if spread > _DISAGREE_SPREAD:
             severe = max(signals)
-            if severe - 0.05 > combined:
+            if severe - _DISAGREEMENT_MARGIN > combined:
                 steps.append(
                     f"signal_disagree spread={spread:.2f}; "
                     f"weight toward severe={severe:.2f}"
                 )
-                combined = severe - 0.05
+                combined = severe - _DISAGREEMENT_MARGIN
 
         # Red-flag override: never under-treat severe presentations.
         if red_flag:
@@ -183,7 +192,7 @@ class WorkflowAgent(BaseAgent):
     def _reweight(self):
         # Use the entire bounded buffer as the sliding window.
         recent = list(self._records)
-        if len(recent) < 30:
+        if len(recent) < _MIN_RECORDS_FOR_REWEIGHT:
             return
 
         def quality(key: str) -> float:
@@ -191,19 +200,22 @@ class WorkflowAgent(BaseAgent):
             succ = [
                 r["success"] for r in recent if r.get(key) is not None
             ]
-            if len(vals) < 20:
-                return 0.5
+            if len(vals) < _MIN_SIGNAL_VALUES:
+                return _QUALITY_BASELINE
             arr = np.asarray(vals)
             s = np.asarray(succ, dtype=float)
             median = float(np.median(arr))
             high = arr >= median
             low = ~high
-            if high.sum() < 5 or low.sum() < 5:
-                return 0.5
+            if high.sum() < _MIN_SPLIT_COUNT or low.sum() < _MIN_SPLIT_COUNT:
+                return _QUALITY_BASELINE
             # Quality proxy: how much higher is success when this signal
             # is high vs low. Scale into [0, 1].
             diff = float(s[high].mean() - s[low].mean())
-            return float(0.5 + 0.5 * np.clip(diff / 0.5, -1.0, 1.0))
+            return float(
+                _QUALITY_BASELINE
+                + _QUALITY_GAIN * np.clip(diff / _QUALITY_DIFF_SCALE, -1.0, 1.0)
+            )
 
         q_s = quality("symptom")
         q_l = quality("lab_avg")

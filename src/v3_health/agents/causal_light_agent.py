@@ -16,7 +16,8 @@ prior alone from the contribution of the data-adaptive machinery in the
 full causal agent. Its decision rule is:
 
     clinical_estimate = mean(presenting_severity, observed lab values)
-    score = 0.7 * clinical_estimate + 0.3 * observed_risk_score
+    score = (1 - causal_light_risk_blend) * clinical_estimate
+            + causal_light_risk_blend * observed_risk_score
     action = threshold(score)
 
 Demographics, prior utilization, and any optional group label are never

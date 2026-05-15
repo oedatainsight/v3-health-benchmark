@@ -96,6 +96,42 @@ def test_cli_run_honors_config_path_and_runtime_overrides(tmp_path):
     assert summary["meta"]["n_patients_per_phase"] == 6
 
 
+def test_cli_run_uses_configured_scenarios_and_agents(tmp_path):
+    config_path = tmp_path / "subset.yaml"
+    payload = yaml.safe_load(Path(cfg.DEFAULT_CONFIG_PATH).read_text())
+    payload["benchmark"]["n_seeds"] = 1
+    payload["benchmark"]["n_patients_per_phase"] = 5
+    payload["scenarios"] = [payload["scenarios"][0]]
+    payload["agents"] = [payload["agents"][0]]
+    config_path.write_text(yaml.safe_dump(payload, sort_keys=False))
+    output_dir = tmp_path / "results"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "v3_health.cli",
+            "run",
+            "--config",
+            str(config_path),
+            "--output-dir",
+            str(output_dir),
+        ],
+        cwd=REPO_ROOT,
+        env=_env(),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    summary = json.loads((output_dir / "results_summary.json").read_text())
+    assert summary["meta"]["scenarios"] == ["treatment_allocation_confounding"]
+    assert summary["meta"]["agents"] == ["baseline"]
+    assert summary["meta"]["n_seeds"] == 1
+    assert summary["meta"]["n_patients_per_phase"] == 5
+
+
 def test_cli_dashboard_generates_html(tmp_path):
     results_dir = tmp_path / "results"
     dashboard_path = tmp_path / "dashboard.html"

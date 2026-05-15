@@ -18,3 +18,16 @@ hyperparams:
   structural_critical_posterior_threshold: 0.35
   structural_high_severity_mass_threshold: 0.55
   structural_high_severity_need_threshold: 1.80
+  structural_gaussian_initial_weight: 2.0
+  structural_gaussian_initial_m2: 0.02
+  structural_access_weight_prior_utilization: 0.28
+  structural_access_weight_insurance: 0.22
+  structural_access_weight_education: 0.18
+  structural_access_weight_lab_availability: 0.22
+  structural_access_weight_deprivation_inverse: 0.10
+  structural_clinical_anchor_symptom_weight: 0.65
+  structural_clinical_anchor_lab_weight: 0.35
+  structural_risk_reliability_base: 0.30
+  structural_risk_reliability_access_weight: 0.50
+  structural_risk_reliability_lab_bonus: 0.20
+  structural_min_bias_regression_samples: 24

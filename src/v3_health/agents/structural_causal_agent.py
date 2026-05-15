@@ -50,6 +50,19 @@ _LIK_WEIGHT_RISK = float(_HP["structural_likelihood_weight_risk"])
 _CRIT_POSTERIOR_THRESHOLD = float(_HP["structural_critical_posterior_threshold"])
 _HIGH_SEV_MASS_THRESHOLD = float(_HP["structural_high_severity_mass_threshold"])
 _HIGH_SEV_NEED_THRESHOLD = float(_HP["structural_high_severity_need_threshold"])
+_GAUSSIAN_INITIAL_WEIGHT = float(_HP["structural_gaussian_initial_weight"])
+_GAUSSIAN_INITIAL_M2 = float(_HP["structural_gaussian_initial_m2"])
+_ACCESS_WEIGHT_PRIOR_UTILIZATION = float(_HP["structural_access_weight_prior_utilization"])
+_ACCESS_WEIGHT_INSURANCE = float(_HP["structural_access_weight_insurance"])
+_ACCESS_WEIGHT_EDUCATION = float(_HP["structural_access_weight_education"])
+_ACCESS_WEIGHT_LAB_AVAILABILITY = float(_HP["structural_access_weight_lab_availability"])
+_ACCESS_WEIGHT_DEPRIVATION_INVERSE = float(_HP["structural_access_weight_deprivation_inverse"])
+_ANCHOR_SYMPTOM_WEIGHT = float(_HP["structural_clinical_anchor_symptom_weight"])
+_ANCHOR_LAB_WEIGHT = float(_HP["structural_clinical_anchor_lab_weight"])
+_RISK_RELIABILITY_BASE = float(_HP["structural_risk_reliability_base"])
+_RISK_RELIABILITY_ACCESS_WEIGHT = float(_HP["structural_risk_reliability_access_weight"])
+_RISK_RELIABILITY_LAB_BONUS = float(_HP["structural_risk_reliability_lab_bonus"])
+_MIN_BIAS_REGRESSION_SAMPLES = int(_HP["structural_min_bias_regression_samples"])
 
 
 def _clip01(value: float) -> float:
@@ -63,8 +76,8 @@ def _safe_log(value: float) -> float:
 @dataclass
 class GaussianAccumulator:
     mean: float
-    weight: float = 2.0
-    m2: float = 0.02
+    weight: float = _GAUSSIAN_INITIAL_WEIGHT
+    m2: float = _GAUSSIAN_INITIAL_M2
 
     def observe(self, value: float, responsibility: float) -> None:
         if responsibility <= 0.0:
@@ -116,11 +129,11 @@ class StructuralCausalModel:
         education = float(patient.demographics.get("education_proxy", 0.5))
         deprivation = float(patient.demographics.get("zip_deprivation", 0.5))
         access = _clip01(
-            0.28 * float(patient.prior_utilization)
-            + 0.22 * insurance
-            + 0.18 * education
-            + 0.22 * avail_rate
-            + 0.10 * (1.0 - deprivation)
+            _ACCESS_WEIGHT_PRIOR_UTILIZATION * float(patient.prior_utilization)
+            + _ACCESS_WEIGHT_INSURANCE * insurance
+            + _ACCESS_WEIGHT_EDUCATION * education
+            + _ACCESS_WEIGHT_LAB_AVAILABILITY * avail_rate
+            + _ACCESS_WEIGHT_DEPRIVATION_INVERSE * (1.0 - deprivation)
         )
         return access, avail_rate
 
@@ -128,7 +141,11 @@ class StructuralCausalModel:
         symptom = float(patient.presenting_complaint_severity)
         lab_vals = [float(v) for v in patient.lab_results.values() if v is not None]
         lab_mean = float(np.mean(lab_vals)) if lab_vals else None
-        anchor = symptom if lab_mean is None else float(0.65 * symptom + 0.35 * lab_mean)
+        anchor = (
+            symptom
+            if lab_mean is None
+            else float(_ANCHOR_SYMPTOM_WEIGHT * symptom + _ANCHOR_LAB_WEIGHT * lab_mean)
+        )
         return anchor, lab_mean, lab_vals
 
     def _centered_access_proxy(self, access_proxy: float) -> float:
@@ -141,7 +158,11 @@ class StructuralCausalModel:
         access_proxy = 1.0 - access_score
         correction = self.risk_bias_slope * self._centered_access_proxy(access_proxy)
         corrected_risk = _clip01(float(patient.observed_risk_score) - correction)
-        risk_reliability = _clip01(0.30 + 0.50 * access_score + (0.20 if lab_mean is not None else 0.0))
+        risk_reliability = _clip01(
+            _RISK_RELIABILITY_BASE
+            + _RISK_RELIABILITY_ACCESS_WEIGHT * access_score
+            + (_RISK_RELIABILITY_LAB_BONUS if lab_mean is not None else 0.0)
+        )
         return corrected_risk, risk_reliability
 
     def belief(self, patient) -> dict:
@@ -242,7 +263,7 @@ class StructuralCausalModel:
         return belief
 
     def _update_risk_bias(self) -> None:
-        if len(self._bias_buffer) < 24:
+        if len(self._bias_buffer) < _MIN_BIAS_REGRESSION_SAMPLES:
             return
         access_proxy = np.asarray(
             [pair[0] for pair in self._bias_buffer], dtype=float

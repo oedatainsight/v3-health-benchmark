@@ -47,10 +47,15 @@ This map points reviewers to the benchmark-critical source files. The canonical 
 
 - `scripts/tables/generate_scenario_spec_table.py`: generates scenario schedule tables from YAML.
 - `scripts/tables/generate_agent_spec_table.py`: generates agent parameter tables from YAML.
+- `scripts/tables/generate_priority_a_result_tables.py`: generates effect-size and adjusted-p-value tables from `artifacts/release/paired_significance.csv`.
+- `scripts/figures/generate_priority_a_figures.py`: generates static camera-ready PDF/PNG figures from `artifacts/release/`.
+- `scripts/rebuild_tables.sh`: one-command rebuild for checked-in Priority A table artifacts.
+- `scripts/rebuild_figures.sh`: one-command rebuild for checked-in Priority A figure artifacts.
 - `src/v3_health/visualization/dashboard.py`: renders the HTML dashboard from `results_summary.json`.
 
 ## Artifacts
 
 - `artifacts/release/`: curated release snapshot.
 - `results/`: default output directory for local benchmark runs.
-- `outputs/tables/`: default output directory for generated specification tables.
+- `outputs/tables/`: checked-in camera-ready Priority A tables.
+- `outputs/figures/`: checked-in camera-ready Priority A static figures.

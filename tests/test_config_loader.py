@@ -29,6 +29,9 @@ def test_default_yaml_materializes_current_runtime_values():
     assert hyperparams["action_thresholds"] == (0.25, 0.50, 0.75)
     assert hyperparams["stratum_edges"] == (0.33, 0.66)
     assert hyperparams["structural_state_prior_mass"] == 4.0
+    assert hyperparams["workflow_lab_mean_weight"] == 0.70
+    assert hyperparams["causal_min_cell_samples"] == 12
+    assert hyperparams["structural_access_weight_prior_utilization"] == 0.28
 
 
 def test_apply_config_bundle_updates_compatibility_globals(tmp_path):

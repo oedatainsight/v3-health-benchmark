@@ -45,6 +45,8 @@ _FAILSTATE_SAFETY_MARGIN = float(_HP["baseline_failstate_safety_margin"])
 _ADAPTIVE_WINDOW = int(_HP["baseline_adaptive_window"])
 _ADAPTIVE_FAILURE_TRIGGER = float(_HP["baseline_adaptive_failure_trigger"])
 _ADAPTIVE_CAUTION_BUMP = float(_HP["baseline_adaptive_caution_bump"])
+_DECAY_TOTAL_THRESHOLD = int(_HP["baseline_decay_total_threshold"])
+_DECAY_FACTOR = float(_HP["baseline_decay_factor"])
 
 
 def _score_to_action(score: float) -> int:
@@ -123,9 +125,9 @@ class BaselineAgent(BaseAgent):
             self._recent_failures += 1
         # Sliding decay so the controller adapts within a phase
         # but does not lock into early bad luck.
-        if self._recent_total > 60:
-            self._recent_total //= 2
-            self._recent_failures //= 2
+        if self._recent_total > _DECAY_TOTAL_THRESHOLD:
+            self._recent_total = int(self._recent_total * _DECAY_FACTOR)
+            self._recent_failures = int(self._recent_failures * _DECAY_FACTOR)
 
     def reset(self):
         super().reset()

@@ -9,3 +9,5 @@ hyperparams:
   baseline_adaptive_window: 30
   baseline_adaptive_failure_trigger: 0.40
   baseline_adaptive_caution_bump: 0.05
+  baseline_decay_total_threshold: 60
+  baseline_decay_factor: 0.50

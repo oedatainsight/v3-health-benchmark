@@ -1,0 +1,36 @@
+# Key Claim Checks
+
+These paired-seed checks are generated from `artifacts/release/paired_significance.csv`. They support narrative phrasing such as "not statistically distinguishable in this experiment" rather than equivalence claims.
+
+| scenario | slice | metric | comparison | focal_mean | comparator_mean | paired_mean_difference | ci_lower | ci_upper | p_raw | p_holm | p_bh | cohen_dz | favored_agent | n_seeds |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| treatment_allocation_confounding | overall | success_rate | structural_causal - causal_light | 0.707167 | 0.706667 | 5.000e-04 | -0.0232456 | 0.0242456 | 0.964844 | 1 | 0.96582 | 0.0133787 | structural_causal | 12 |
+| treatment_allocation_confounding | overall | near_optimal_rate | structural_causal - causal_light | 0.994528 | 0.995194 | -6.667e-04 | -0.00266978 | 0.00133645 | 0.517578 | 1 | 0.591518 | -0.21146 | causal_light | 12 |
+| treatment_allocation_confounding | adversarial | success_rate | structural_causal - causal_light | 0.713917 | 0.696 | 0.0179167 | -0.00637205 | 0.0422054 | 0.132324 | 0.980469 | 0.154018 | 0.468683 | structural_causal | 12 |
+| treatment_allocation_confounding | adversarial | near_optimal_rate | structural_causal - causal_light | 0.99425 | 0.9915 | 0.00275 | 6.845e-04 | 0.00481551 | 0.0195312 | 0.195312 | 0.0252016 | 0.845926 | structural_causal | 12 |
+| treatment_allocation_confounding | degradation | success_rate_drop | structural_causal - causal_light | -0.0109167 | 0.0138333 | -0.02475 | -0.0372334 | -0.0122666 | 9.766e-04 | 0.0185547 | 0.00244141 | -1.2597 | structural_causal | 12 |
+| treatment_allocation_confounding | overall | success_rate | structural_causal - stability_filtered | 0.707167 | 0.681 | 0.0261667 | -0.0162642 | 0.0685975 | 0.210449 | 1 | 0.25509 | 0.391826 | structural_causal | 12 |
+| treatment_allocation_confounding | overall | near_optimal_rate | structural_causal - stability_filtered | 0.994528 | 0.995111 | -5.833e-04 | -0.00302352 | 0.00185685 | 0.631836 | 1 | 0.70204 | -0.151887 | stability_filtered | 12 |
+| treatment_allocation_confounding | adversarial | success_rate | structural_causal - stability_filtered | 0.713917 | 0.681333 | 0.0325833 | -0.0112848 | 0.0764514 | 0.122559 | 0.980469 | 0.148556 | 0.471925 | structural_causal | 12 |
+| treatment_allocation_confounding | adversarial | near_optimal_rate | structural_causal - stability_filtered | 0.99425 | 0.99275 | 0.0015 | -0.00153506 | 0.00453506 | 0.359375 | 1 | 0.388514 | 0.314015 | structural_causal | 12 |
+| treatment_allocation_confounding | degradation | success_rate_drop | structural_causal - stability_filtered | -0.0109167 | -0.00283333 | -0.00808333 | -0.0262361 | 0.0100694 | 0.361328 | 0.902344 | 0.373788 | -0.282927 | structural_causal | 12 |
+| missing_data_bias | overall | success_rate | structural_causal - causal_light | 0.705639 | 0.703083 | 0.00255556 | -0.0240722 | 0.0291833 | 0.838867 | 1 | 0.906883 | 0.0609786 | structural_causal | 12 |
+| missing_data_bias | overall | near_optimal_rate | structural_causal - causal_light | 0.995417 | 0.997833 | -0.00241667 | -0.00395488 | -8.785e-04 | 0.00439453 | 0.0527344 | 0.00606142 | -0.998221 | causal_light | 12 |
+| missing_data_bias | adversarial | success_rate | structural_causal - causal_light | 0.705333 | 0.704917 | 4.167e-04 | -0.0295083 | 0.0303416 | 0.979492 | 1 | 0.988281 | 0.00884671 | structural_causal | 12 |
+| missing_data_bias | adversarial | near_optimal_rate | structural_causal - causal_light | 0.994417 | 0.995833 | -0.00141667 | -0.00369078 | 8.574e-04 | 0.242188 | 1 | 0.302734 | -0.395806 | causal_light | 12 |
+| missing_data_bias | degradation | success_rate_drop | structural_causal - causal_light | 8.333e-04 | -0.004 | 0.00483333 | -0.00766977 | 0.0173364 | 0.415039 | 1 | 0.691732 | 0.245615 | causal_light | 12 |
+| missing_data_bias | overall | success_rate | structural_causal - stability_filtered | 0.705639 | 0.71625 | -0.0106111 | -0.0265065 | 0.00528425 | 0.178223 | 1 | 0.222778 | -0.424148 | stability_filtered | 12 |
+| missing_data_bias | overall | near_optimal_rate | structural_causal - stability_filtered | 0.995417 | 0.995278 | 1.389e-04 | -0.00143427 | 0.00171205 | 0.875488 | 1 | 0.921567 | 0.0560945 | structural_causal | 12 |
+| missing_data_bias | adversarial | success_rate | structural_causal - stability_filtered | 0.705333 | 0.717 | -0.0116667 | -0.0293377 | 0.00600432 | 0.196289 | 1 | 0.261719 | -0.419481 | stability_filtered | 12 |
+| missing_data_bias | adversarial | near_optimal_rate | structural_causal - stability_filtered | 0.994417 | 0.991833 | 0.00258333 | 6.421e-05 | 0.00510245 | 0.0546875 | 0.820312 | 0.0841346 | 0.651566 | structural_causal | 12 |
+| missing_data_bias | degradation | success_rate_drop | structural_causal - stability_filtered | 8.333e-04 | -0.00216667 | 0.003 | -0.00958843 | 0.0155884 | 0.654297 | 1 | 0.908869 | 0.151418 | stability_filtered | 12 |
+| historical_bias_feedback | overall | success_rate | structural_causal - causal_light | 0.694389 | 0.685278 | 0.00911111 | -0.00829772 | 0.0265199 | 0.272461 | 1 | 0.294552 | 0.332528 | structural_causal | 12 |
+| historical_bias_feedback | overall | near_optimal_rate | structural_causal - causal_light | 0.988972 | 0.993111 | -0.00413889 | -0.00697095 | -0.00130683 | 0.0126953 | 0.101562 | 0.0153883 | -0.928557 | causal_light | 12 |
+| historical_bias_feedback | adversarial | success_rate | structural_causal - causal_light | 0.696083 | 0.678 | 0.0180833 | -7.325e-04 | 0.0368992 | 0.0703125 | 0.417969 | 0.078125 | 0.610633 | structural_causal | 12 |
+| historical_bias_feedback | adversarial | near_optimal_rate | structural_causal - causal_light | 0.986333 | 0.988917 | -0.00258333 | -0.00566588 | 4.992e-04 | 0.105469 | 0.421875 | 0.11402 | -0.532472 | causal_light | 12 |
+| historical_bias_feedback | degradation | success_rate_drop | structural_causal - causal_light | -0.00325 | 0.0129167 | -0.0161667 | -0.0270638 | -0.00526954 | 0.00878906 | 0.0878906 | 0.0125558 | -0.942616 | structural_causal | 12 |
+| historical_bias_feedback | overall | success_rate | structural_causal - stability_filtered | 0.694389 | 0.685611 | 0.00877778 | -0.0239418 | 0.0414973 | 0.563477 | 1 | 0.593133 | 0.170453 | structural_causal | 12 |
+| historical_bias_feedback | overall | near_optimal_rate | structural_causal - stability_filtered | 0.988972 | 0.99325 | -0.00427778 | -0.00596204 | -0.00259352 | 4.883e-04 | 0.0195312 | 6.510e-04 | -1.61375 | stability_filtered | 12 |
+| historical_bias_feedback | adversarial | success_rate | structural_causal - stability_filtered | 0.696083 | 0.68575 | 0.0103333 | -0.0240806 | 0.0447473 | 0.51416 | 1 | 0.527344 | 0.19078 | structural_causal | 12 |
+| historical_bias_feedback | adversarial | near_optimal_rate | structural_causal - stability_filtered | 0.986333 | 0.991833 | -0.0055 | -0.00820244 | -0.00279756 | 0.00292969 | 0.0292969 | 0.00378024 | -1.2931 | stability_filtered | 12 |
+| historical_bias_feedback | degradation | success_rate_drop | structural_causal - stability_filtered | -0.00325 | -0.00266667 | -5.833e-04 | -0.0123442 | 0.0111775 | 0.927246 | 0.927246 | 0.927246 | -0.0315141 | structural_causal | 12 |

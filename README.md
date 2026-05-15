@@ -64,6 +64,12 @@ pip install -e .[dev]
 
 ## Reproduce the benchmark
 
+Run a quick smoke test:
+
+```bash
+scripts/run_smoke_test.sh
+```
+
 Run the full benchmark:
 
 ```bash
@@ -97,18 +103,20 @@ Run the test suite:
 pytest
 ```
 
-Generate scenario and agent specification tables from the same YAML config
-used by the runtime:
+Regenerate camera-ready Priority A tables and figures from the checked-in
+release snapshot:
 
 ```bash
-PYTHONPATH=src python3 scripts/tables/generate_scenario_spec_table.py \
-  --config configs/v3_health_default.yaml \
-  --output-dir outputs/tables
-
-PYTHONPATH=src python3 scripts/tables/generate_agent_spec_table.py \
-  --config configs/v3_health_default.yaml \
-  --output-dir outputs/tables
+scripts/rebuild_tables.sh
+scripts/rebuild_figures.sh
 ```
+
+The table script regenerates scenario and agent specification tables from the
+same YAML config used by the runtime, plus reviewer-requested statistical
+tables from `artifacts/release/paired_significance.csv`.
+
+The figure script regenerates static PDF/PNG figures from
+`artifacts/release/results_summary.json` and `artifacts/release/tradeoff_summary.csv`.
 
 ## Expected outputs
 
@@ -125,6 +133,17 @@ including:
 - `audit_log.jsonl`
 
 The dashboard command writes `results/dashboard.html`.
+
+Camera-ready Priority A artifacts are checked in under:
+
+- `outputs/tables/scenario_parameter_schedule.{csv,md,tex}`
+- `outputs/tables/agent_parameter_summary.{csv,md,tex}`
+- `outputs/tables/pairwise_results_with_effect_sizes.{csv,md,tex}`
+- `outputs/tables/adjusted_p_values.{csv,md,tex}`
+- `outputs/tables/key_claim_checks.md`
+- `outputs/figures/figure1_regime_dependence_accessible.{pdf,png}`
+- `outputs/figures/figure2_paired_seed_slopechart.{pdf,png}`
+- `docs/bibliography_expansion.md`
 
 The canonical checked-in publication snapshot lives under
 `artifacts/release/`.

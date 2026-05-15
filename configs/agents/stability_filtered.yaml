@@ -11,3 +11,9 @@ hyperparams:
   action_success_override_floor: 0.55
   action_success_max_level_shift: 1
   causal_window: 80
+  causal_min_cell_samples: 12
+  causal_min_action_success_samples: 8
+  causal_default_stability: 0.50
+  causal_stable_risk_blend: 0.30
+  causal_warmup_risk_blend: 0.20
+  causal_uncertain_risk_blend: 0.15

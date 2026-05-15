@@ -1,0 +1,77 @@
+agent,label,family,parameter,value,source
+baseline,Baseline,policy baseline,baseline_action_thresholds,"[0.25, 0.5, 0.75]",configs/agents/baseline.yaml
+baseline,Baseline,policy baseline,baseline_max_missing_before_failstate,0.6,configs/agents/baseline.yaml
+baseline,Baseline,policy baseline,baseline_disagreement_escalation,0.35,configs/agents/baseline.yaml
+baseline,Baseline,policy baseline,baseline_failstate_safety_margin,0.1,configs/agents/baseline.yaml
+baseline,Baseline,policy baseline,baseline_adaptive_window,30,configs/agents/baseline.yaml
+baseline,Baseline,policy baseline,baseline_adaptive_failure_trigger,0.4,configs/agents/baseline.yaml
+baseline,Baseline,policy baseline,baseline_adaptive_caution_bump,0.05,configs/agents/baseline.yaml
+baseline,Baseline,policy baseline,baseline_decay_total_threshold,60,configs/agents/baseline.yaml
+baseline,Baseline,policy baseline,baseline_decay_factor,0.5,configs/agents/baseline.yaml
+workflow,Workflow,adaptive workflow heuristic,action_thresholds,"[0.25, 0.5, 0.75]",configs/agents/workflow.yaml
+workflow,Workflow,adaptive workflow heuristic,red_flag_symptom,0.85,configs/agents/workflow.yaml
+workflow,Workflow,adaptive workflow heuristic,red_flag_floor,0.75,configs/agents/workflow.yaml
+workflow,Workflow,adaptive workflow heuristic,low_avail_threshold,0.4,configs/agents/workflow.yaml
+workflow,Workflow,adaptive workflow heuristic,disagree_spread,0.35,configs/agents/workflow.yaml
+workflow,Workflow,adaptive workflow heuristic,adapt_every,50,configs/agents/workflow.yaml
+workflow,Workflow,adaptive workflow heuristic,adapt_blend,0.3,configs/agents/workflow.yaml
+workflow,Workflow,adaptive workflow heuristic,adapt_window,200,configs/agents/workflow.yaml
+workflow,Workflow,adaptive workflow heuristic,mnar_bump_workflow_base,0.03,configs/agents/workflow.yaml
+workflow,Workflow,adaptive workflow heuristic,mnar_bump_workflow_slope,0.07,configs/agents/workflow.yaml
+workflow,Workflow,adaptive workflow heuristic,workflow_initial_weight_symptom,0.4,configs/agents/workflow.yaml
+workflow,Workflow,adaptive workflow heuristic,workflow_initial_weight_labs,0.3,configs/agents/workflow.yaml
+workflow,Workflow,adaptive workflow heuristic,workflow_initial_weight_risk,0.3,configs/agents/workflow.yaml
+workflow,Workflow,adaptive workflow heuristic,workflow_lab_mean_weight,0.7,configs/agents/workflow.yaml
+workflow,Workflow,adaptive workflow heuristic,workflow_lab_max_weight,0.3,configs/agents/workflow.yaml
+workflow,Workflow,adaptive workflow heuristic,workflow_disagreement_margin,0.05,configs/agents/workflow.yaml
+workflow,Workflow,adaptive workflow heuristic,workflow_min_records_for_reweight,30,configs/agents/workflow.yaml
+workflow,Workflow,adaptive workflow heuristic,workflow_min_signal_values,20,configs/agents/workflow.yaml
+workflow,Workflow,adaptive workflow heuristic,workflow_min_split_count,5,configs/agents/workflow.yaml
+workflow,Workflow,adaptive workflow heuristic,workflow_quality_baseline,0.5,configs/agents/workflow.yaml
+workflow,Workflow,adaptive workflow heuristic,workflow_quality_gain,0.5,configs/agents/workflow.yaml
+workflow,Workflow,adaptive workflow heuristic,workflow_quality_diff_scale,0.5,configs/agents/workflow.yaml
+causal_light,Causal Light,structural-prior ablation,causal_light_risk_blend,0.3,configs/agents/causal_light.yaml
+stability_filtered,Stability-Filtered,structurally constrained adaptive heuristic,stratum_edges,"[0.33, 0.66]",configs/agents/stability_filtered.yaml
+stability_filtered,Stability-Filtered,structurally constrained adaptive heuristic,mnar_bump_causal,0.1,configs/agents/stability_filtered.yaml
+stability_filtered,Stability-Filtered,structurally constrained adaptive heuristic,mnar_threshold_causal,0.5,configs/agents/stability_filtered.yaml
+stability_filtered,Stability-Filtered,structurally constrained adaptive heuristic,stable_threshold,0.55,configs/agents/stability_filtered.yaml
+stability_filtered,Stability-Filtered,structurally constrained adaptive heuristic,unstable_threshold,0.4,configs/agents/stability_filtered.yaml
+stability_filtered,Stability-Filtered,structurally constrained adaptive heuristic,drift_normalization,0.4,configs/agents/stability_filtered.yaml
+stability_filtered,Stability-Filtered,structurally constrained adaptive heuristic,action_success_override_floor,0.55,configs/agents/stability_filtered.yaml
+stability_filtered,Stability-Filtered,structurally constrained adaptive heuristic,action_success_max_level_shift,1,configs/agents/stability_filtered.yaml
+stability_filtered,Stability-Filtered,structurally constrained adaptive heuristic,causal_window,80,configs/agents/stability_filtered.yaml
+stability_filtered,Stability-Filtered,structurally constrained adaptive heuristic,causal_min_cell_samples,12,configs/agents/stability_filtered.yaml
+stability_filtered,Stability-Filtered,structurally constrained adaptive heuristic,causal_min_action_success_samples,8,configs/agents/stability_filtered.yaml
+stability_filtered,Stability-Filtered,structurally constrained adaptive heuristic,causal_default_stability,0.5,configs/agents/stability_filtered.yaml
+stability_filtered,Stability-Filtered,structurally constrained adaptive heuristic,causal_stable_risk_blend,0.3,configs/agents/stability_filtered.yaml
+stability_filtered,Stability-Filtered,structurally constrained adaptive heuristic,causal_warmup_risk_blend,0.2,configs/agents/stability_filtered.yaml
+stability_filtered,Stability-Filtered,structurally constrained adaptive heuristic,causal_uncertain_risk_blend,0.15,configs/agents/stability_filtered.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_state_centers,"[0.125, 0.375, 0.625, 0.875]",configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_feature_std_floor,0.08,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_bias_window,240,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_exploration_steps,240,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_exploration_weight,0.1,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_outcome_prior_alpha,1.0,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_outcome_prior_beta,1.0,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_bias_ewma,0.35,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_bias_clip,0.45,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_state_prior_mass,4.0,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_likelihood_weight_symptom,1.15,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_likelihood_weight_lab,0.95,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_likelihood_weight_risk,0.85,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_critical_posterior_threshold,0.35,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_high_severity_mass_threshold,0.55,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_high_severity_need_threshold,1.8,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_gaussian_initial_weight,2.0,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_gaussian_initial_m2,0.02,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_access_weight_prior_utilization,0.28,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_access_weight_insurance,0.22,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_access_weight_education,0.18,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_access_weight_lab_availability,0.22,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_access_weight_deprivation_inverse,0.1,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_clinical_anchor_symptom_weight,0.65,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_clinical_anchor_lab_weight,0.35,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_risk_reliability_base,0.3,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_risk_reliability_access_weight,0.5,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_risk_reliability_lab_bonus,0.2,configs/agents/structural_causal.yaml
+structural_causal,Structural Causal,explicit structural causal model,structural_min_bias_regression_samples,24,configs/agents/structural_causal.yaml

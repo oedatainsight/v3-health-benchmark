@@ -1,6 +1,6 @@
 # Agent Specifications
 
-The canonical agent hyperparameters are in `configs/agents/*.yaml`. The implementations live in `src/v3_health/agents/`.
+The canonical agent hyperparameters are in `configs/agents/*.yaml`. The implementations live in `src/v3_health/agents/`. Reviewer-facing decision coefficients, sampling thresholds, priors, update windows, and blend weights are exposed in those YAML files and can be regenerated into `outputs/tables/agent_parameter_summary.*`.
 
 All agents implement the same interface:
 

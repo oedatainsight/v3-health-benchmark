@@ -39,6 +39,8 @@ Let `A` be the agent action and `O(H)` be the optimal treatment level implied by
 g(A, H) = |A - O(H)|
 ```
 
+Implementation: `v3_health.core.outcome_resolver.treatment_mismatch_gap`.
+
 Domain:
 
 - `A in {0, 1, 2, 3}`
@@ -68,6 +70,8 @@ The headline setting uses a symmetric penalty:
 u(A, H) = g(A, H) * H if A != O(H)
 u(A, H) = 0 otherwise
 ```
+
+Implementation: `v3_health.core.outcome_resolver.symmetric_severity_penalty`.
 
 When `outcome_symmetric_severity_penalty` is disabled, the penalty applies only to under-treatment:
 

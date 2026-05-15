@@ -56,6 +56,42 @@ def _sigmoid(x: float) -> float:
     return z / (1.0 + z)
 
 
+def treatment_mismatch_gap(action: int, latent: LatentPatientState) -> int:
+    """Return g(A, H), the absolute gap from latent optimal treatment.
+
+    Domain: ``action`` and ``latent.optimal_treatment`` are treatment levels
+    in ``{0, 1, 2, 3}``. Range: ``{0, 1, 2, 3}``.
+    """
+    return abs(int(action) - int(latent.optimal_treatment))
+
+
+def symmetric_severity_penalty(
+    action: int,
+    latent: LatentPatientState,
+    *,
+    symmetric: bool | None = None,
+) -> float:
+    """Return u(A, H), the unweighted severity penalty term.
+
+    With ``symmetric=True``, both over-treatment and under-treatment are
+    penalized as ``g(A, H) * H``. With ``symmetric=False``, only
+    under-treatment is penalized. If ``symmetric`` is omitted, the runtime
+    configuration flag ``outcome_symmetric_severity_penalty`` is used.
+    """
+    optimal = int(latent.optimal_treatment)
+    gap = int(action) - optimal
+    if gap == 0:
+        return 0.0
+    symmetric_penalty = (
+        bool(C.get("outcome_symmetric_severity_penalty", False))
+        if symmetric is None
+        else bool(symmetric)
+    )
+    if gap < 0 or symmetric_penalty:
+        return float(abs(gap) * latent.true_health)
+    return 0.0
+
+
 def resolve_outcome(
     action: int,
     latent: LatentPatientState,
@@ -66,14 +102,19 @@ def resolve_outcome(
 
     optimal = latent.optimal_treatment
     gap = action - optimal
-    abs_gap = abs(gap)
+    abs_gap = treatment_mismatch_gap(action, latent)
 
     under_treated = gap < 0
     over_treated = gap > 0
 
     symmetric_penalty = bool(C.get("outcome_symmetric_severity_penalty", False))
     model = str(C.get("outcome_model", "clipped_linear")).lower()
-    severity_active = under_treated or (over_treated and symmetric_penalty)
+    severity_term = symmetric_severity_penalty(
+        action,
+        latent,
+        symmetric=symmetric_penalty,
+    )
+    severity_active = severity_term > 0.0
 
     if model == "logistic":
         eta = (
@@ -82,7 +123,7 @@ def resolve_outcome(
             - float(C["logistic_health_penalty"]) * latent.true_health
         )
         if severity_active:
-            eta -= float(C["logistic_undertreat_penalty"]) * abs_gap * latent.true_health
+            eta -= float(C["logistic_undertreat_penalty"]) * severity_term
         success_prob = _sigmoid(eta)
         clip_active = False
     else:
@@ -90,8 +131,7 @@ def resolve_outcome(
         health_penalty = C["health_penalty_weight"] * latent.true_health
         raw_prob = base_success - health_penalty
         if severity_active:
-            severity_penalty = C["under_treatment_severity_penalty"] * latent.true_health
-            raw_prob -= severity_penalty * abs_gap
+            raw_prob -= C["under_treatment_severity_penalty"] * severity_term
         clipped = float(np.clip(raw_prob, 0.05, 0.95))
         clip_active = bool(clipped != raw_prob)
         success_prob = clipped

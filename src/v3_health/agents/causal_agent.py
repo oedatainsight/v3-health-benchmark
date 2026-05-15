@@ -56,6 +56,12 @@ _FORBIDDEN_NAMES = {"prior_utilization"}
 _THRESHOLDS = tuple(_HP["action_thresholds"])
 _ACTION_SUCCESS_OVERRIDE_FLOOR = float(_HP["action_success_override_floor"])
 _ACTION_SUCCESS_MAX_LEVEL_SHIFT = int(_HP["action_success_max_level_shift"])
+_MIN_CELL_SAMPLES = int(_HP["causal_min_cell_samples"])
+_MIN_ACTION_SUCCESS_SAMPLES = int(_HP["causal_min_action_success_samples"])
+_DEFAULT_STABILITY = float(_HP["causal_default_stability"])
+_STABLE_RISK_BLEND = float(_HP["causal_stable_risk_blend"])
+_WARMUP_RISK_BLEND = float(_HP["causal_warmup_risk_blend"])
+_UNCERTAIN_RISK_BLEND = float(_HP["causal_uncertain_risk_blend"])
 
 
 def _score_to_action(score: float) -> int:
@@ -134,7 +140,7 @@ class CausalModel:
                     r for r in records
                     if r["stratum"] == s and r["action"] == a
                 ]
-                if len(subset) < 12:
+                if len(subset) < _MIN_CELL_SAMPLES:
                     continue
                 vals = [r["features"].get(feat) for r in subset]
                 valid = [
@@ -142,14 +148,15 @@ class CausalModel:
                     for v, r in zip(vals, subset)
                     if v is not None
                 ]
-                if len(valid) < 12:
+                if len(valid) < _MIN_CELL_SAMPLES:
                     continue
                 arr = np.asarray([v for v, _ in valid])
                 succ = np.asarray([y for _, y in valid])
                 median = float(np.median(arr))
                 high_mask = arr >= median
                 low_mask = ~high_mask
-                if high_mask.sum() < 4 or low_mask.sum() < 4:
+                min_split = max(1, _MIN_CELL_SAMPLES // 3)
+                if high_mask.sum() < min_split or low_mask.sum() < min_split:
                     continue
                 cell_contrasts.append(
                     float(succ[high_mask].mean() - succ[low_mask].mean())
@@ -176,7 +183,7 @@ class CausalModel:
             eff_l = self._stratified_effect(late, feat)
             if eff_e is None or eff_l is None:
                 # Default: weak prior of moderate stability.
-                self.feature_stability[feat] = 0.5
+                self.feature_stability[feat] = _DEFAULT_STABILITY
                 if eff_l is not None:
                     self.feature_effect[feat] = eff_l
                 continue
@@ -188,11 +195,11 @@ class CausalModel:
 
     def is_stable(self, feat: str, threshold: float | None = None) -> bool:
         thr = float(threshold if threshold is not None else _HP["stable_threshold"])
-        return self.feature_stability.get(feat, 0.5) >= thr
+        return self.feature_stability.get(feat, _DEFAULT_STABILITY) >= thr
 
     def is_unstable(self, feat: str, threshold: float | None = None) -> bool:
         thr = float(threshold if threshold is not None else _HP["unstable_threshold"])
-        return self.feature_stability.get(feat, 0.5) < thr
+        return self.feature_stability.get(feat, _DEFAULT_STABILITY) < thr
 
     def best_action(self, stratum: int, default: int) -> tuple[int, float]:
         """
@@ -204,7 +211,7 @@ class CausalModel:
         seen = False
         for a in (0, 1, 2, 3):
             outcomes = self.action_success.get((stratum, a), [])
-            if len(outcomes) < 8:
+            if len(outcomes) < _MIN_ACTION_SUCCESS_SAMPLES:
                 continue
             seen = True
             p = float(np.mean(outcomes))
@@ -283,15 +290,18 @@ class CausalAgent(BaseAgent):
             score = clinical
         elif risk_stable:
             steps.append("USE observed_risk (stable across windows)")
-            score = 0.7 * clinical + 0.3 * risk
+            score = (1.0 - _STABLE_RISK_BLEND) * clinical + _STABLE_RISK_BLEND * risk
         else:
             # Insufficient evidence yet; partial trust during warmup.
             if self.model.n < self.model.window:
                 steps.append("warmup: partial trust in observed_risk")
-                score = 0.8 * clinical + 0.2 * risk
+                score = (1.0 - _WARMUP_RISK_BLEND) * clinical + _WARMUP_RISK_BLEND * risk
             else:
                 steps.append("uncertain observed_risk; conservative blend")
-                score = 0.85 * clinical + 0.15 * risk
+                score = (
+                    (1.0 - _UNCERTAIN_RISK_BLEND) * clinical
+                    + _UNCERTAIN_RISK_BLEND * risk
+                )
 
         # MNAR-aware adjustment: high missingness is treated as informative.
         n_total = len(labs)

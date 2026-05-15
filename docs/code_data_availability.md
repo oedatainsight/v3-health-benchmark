@@ -34,16 +34,11 @@ v3-health run --config configs/v3_health_default.yaml --output-dir results
 v3-health dashboard --results results/results_summary.json --output results/dashboard.html
 ```
 
-Generate config-derived tables:
+Regenerate checked-in camera-ready tables and figures:
 
 ```bash
-PYTHONPATH=src python3 scripts/tables/generate_scenario_spec_table.py \
-  --config configs/v3_health_default.yaml \
-  --output-dir outputs/tables
-
-PYTHONPATH=src python3 scripts/tables/generate_agent_spec_table.py \
-  --config configs/v3_health_default.yaml \
-  --output-dir outputs/tables
+scripts/rebuild_tables.sh
+scripts/rebuild_figures.sh
 ```
 
 ## Artifact Locations
@@ -53,4 +48,5 @@ PYTHONPATH=src python3 scripts/tables/generate_agent_spec_table.py \
 - Agent configs: `configs/agents/`
 - Release snapshot: `artifacts/release/`
 - Local benchmark outputs: `results/`
-- Generated specification tables: `outputs/tables/`
+- Camera-ready tables: `outputs/tables/`
+- Camera-ready figures: `outputs/figures/`
