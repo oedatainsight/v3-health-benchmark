@@ -1,0 +1,29 @@
+{
+  "scenario": "missing_data_bias",
+  "focal_agent": "structural_causal",
+  "focal_label": "Structural Causal",
+  "competitor": "stability_filtered",
+  "competitor_label": "Stability-Filtered",
+  "score": 0.013611111111111223,
+  "summary": "Structural Causal does not dominate Stability-Filtered in missing data bias; Stability-Filtered is stronger on raw utility, robustness.",
+  "metrics": {
+    "success_rate": {
+      "focal": 0.7056388888888888,
+      "competitor": 0.71625,
+      "difference": -0.010611111111111238,
+      "p_value": 0.17822265625
+    },
+    "fairness_gap_ses": {
+      "focal": 0.007226850780042354,
+      "competitor": 0.007705008785349241,
+      "difference": -0.0004781580053068871,
+      "p_value": 0.6533203125
+    },
+    "success_rate_drop": {
+      "focal": 0.0008333333333333156,
+      "competitor": -0.0021666666666666687,
+      "difference": 0.0029999999999999844,
+      "p_value": 0.654296875
+    }
+  }
+}

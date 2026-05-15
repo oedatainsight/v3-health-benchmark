@@ -1,0 +1,75 @@
+{
+  "repo_name": "v3-health-benchmark",
+  "release_date": "2026-05-15",
+  "source": {
+    "project": "causal-agent-benchmark",
+    "branch": "V2-healthcare",
+    "commit": "7c08b6098c65045c7455fe8f44824bbb85e77dd4",
+    "subtree": "v3_health"
+  },
+  "generated_from_extracted_repo": true,
+  "commands": {
+    "benchmark": "v3-health run --output-dir results",
+    "dashboard": "v3-health dashboard --results results/results_summary.json --output results/dashboard.html",
+    "sensitivity": "v3-health sensitivity --output-dir results/sensitivity --n-patients-per-phase 120 --n-seeds 3 --perturbation 0.25"
+  },
+  "runtime": {
+    "target_python": ">=3.11",
+    "validated_python": "Python 3.13.9"
+  },
+  "headline_configuration": {
+    "n_seeds": 12,
+    "n_patients_per_phase": 1000,
+    "phases": [
+      "normal",
+      "surface_shift",
+      "adversarial"
+    ],
+    "scenarios": [
+      "treatment_allocation_confounding",
+      "missing_data_bias",
+      "historical_bias_feedback"
+    ],
+    "agents": [
+      "baseline",
+      "workflow",
+      "causal_light",
+      "stability_filtered",
+      "structural_causal"
+    ]
+  },
+  "dependency_lock": {
+    "path": "requirements-lock.txt",
+    "sha256": "b19014e31f90d26ae9ed362d7e8346e6288550eddfa18fdf11c4520883a1470f"
+  },
+  "release_artifacts": [
+    {
+      "path": "artifacts/release/results_summary.json",
+      "sha256": "17a948d833708ec58e50f3a8e485a5ecc88b49d1d1c46f2181ab6ae66fa35ca1"
+    },
+    {
+      "path": "artifacts/release/negative_result.json",
+      "sha256": "0beb8e4b74d053eed3677b83de56896c02807f828932d4841b4c5db0edc1542d"
+    },
+    {
+      "path": "artifacts/release/paired_significance.csv",
+      "sha256": "729b32196ef3e2af908c51967f23018caa7a573a7d48bae57c2bd0396b4e8f5d"
+    },
+    {
+      "path": "artifacts/release/effect_sizes.csv",
+      "sha256": "43043ca2502fa0d64a7b77b2f90b7756859df4980c3a4ba1cc789c2c4c7bff22"
+    },
+    {
+      "path": "artifacts/release/seed_summary.csv",
+      "sha256": "bd46bd7a6f419144c153c495012465d31d1da2c803510275f9b05cbcc130c4c9"
+    },
+    {
+      "path": "artifacts/release/tradeoff_summary.csv",
+      "sha256": "ed1c2734b640a688ef494e571fae948a67814d1974891de412cd77ca04d7f694"
+    },
+    {
+      "path": "artifacts/release/dashboard.html",
+      "sha256": "6eac4ab19e3d5b76d94c6f1c583b2b238db2e01e4d4c42a6d88cc912725dda51"
+    }
+  ]
+}

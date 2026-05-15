@@ -1,0 +1,10 @@
+__pycache__/
+.DS_Store
+.pytest_cache/
+.venv*/
+build/
+dist/
+*.egg-info/
+results/
+verify-results/
+verify-sensitivity/
