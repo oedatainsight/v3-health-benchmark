@@ -29,10 +29,9 @@ from v3_health.core.config import AGENT_HYPERPARAMS as _HP
 
 
 _ACTIONS = (0, 1, 2, 3)
-# Fixed quartile midpoints over [0, 1]. These are not derived from the
-# simulator thresholds so the agent does not inherit privileged access to
-# the benchmark's optimal-treatment discretization.
-_STATE_CENTERS = np.asarray([0.125, 0.375, 0.625, 0.875], dtype=float)
+# Fixed quartile midpoints over [0, 1]. These are configured independently
+# from simulator thresholds so the agent does not inherit privileged access.
+_STATE_CENTERS = np.asarray(_HP["structural_state_centers"], dtype=float)
 _STATE_NAMES = ("monitor", "standard", "aggressive", "critical")
 _FEATURE_STD_FLOOR = float(_HP["structural_feature_std_floor"])
 _BIAS_WINDOW = int(_HP["structural_bias_window"])

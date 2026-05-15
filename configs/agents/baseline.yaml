@@ -1,0 +1,11 @@
+agent: baseline
+label: Baseline
+family: policy baseline
+hyperparams:
+  baseline_action_thresholds: [0.25, 0.50, 0.75]
+  baseline_max_missing_before_failstate: 0.60
+  baseline_disagreement_escalation: 0.35
+  baseline_failstate_safety_margin: 0.10
+  baseline_adaptive_window: 30
+  baseline_adaptive_failure_trigger: 0.40
+  baseline_adaptive_caution_bump: 0.05

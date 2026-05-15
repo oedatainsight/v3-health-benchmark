@@ -2,30 +2,28 @@ from __future__ import annotations
 
 import argparse
 from contextlib import contextmanager
-from copy import deepcopy
 from pathlib import Path
 from typing import Iterator
 
 from v3_health.core import config as cfg
-from v3_health.evaluation.run_benchmark import run_full_benchmark
-from v3_health.experiments.hyperparam_sensitivity import run_sensitivity_sweep
-from v3_health.visualization.dashboard import render_dashboard
 
 
 @contextmanager
 def _temporary_healthcare_config(**overrides: int | float | bool | None) -> Iterator[None]:
-    saved = deepcopy(cfg.HEALTHCARE_CONFIG)
+    saved = cfg.snapshot_config()
     try:
         for key, value in overrides.items():
             if value is not None:
                 cfg.HEALTHCARE_CONFIG[key] = value
         yield
     finally:
-        cfg.HEALTHCARE_CONFIG.clear()
-        cfg.HEALTHCARE_CONFIG.update(saved)
+        cfg.restore_config(saved)
 
 
 def _run_command(args: argparse.Namespace) -> int:
+    cfg.apply_config_bundle(args.config)
+    from v3_health.evaluation.run_benchmark import run_full_benchmark
+
     with _temporary_healthcare_config(
         n_patients_per_phase=args.n_patients_per_phase,
         n_seeds=args.n_seeds,
@@ -35,11 +33,17 @@ def _run_command(args: argparse.Namespace) -> int:
 
 
 def _dashboard_command(args: argparse.Namespace) -> int:
+    cfg.apply_config_bundle(args.config)
+    from v3_health.visualization.dashboard import render_dashboard
+
     render_dashboard(args.results, args.output)
     return 0
 
 
 def _sensitivity_command(args: argparse.Namespace) -> int:
+    cfg.apply_config_bundle(args.config)
+    from v3_health.experiments.hyperparam_sensitivity import run_sensitivity_sweep
+
     run_sensitivity_sweep(
         output_dir=str(args.output_dir),
         n_patients_per_phase=args.n_patients_per_phase,
@@ -59,6 +63,12 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser = subparsers.add_parser(
         "run",
         help="Run the benchmark and write summary outputs.",
+    )
+    run_parser.add_argument(
+        "--config",
+        type=Path,
+        default=cfg.DEFAULT_CONFIG_PATH,
+        help="Path to the top-level YAML config bundle.",
     )
     run_parser.add_argument(
         "--output-dir",
@@ -84,6 +94,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Render the HTML dashboard from a benchmark summary JSON file.",
     )
     dashboard_parser.add_argument(
+        "--config",
+        type=Path,
+        default=cfg.DEFAULT_CONFIG_PATH,
+        help="Path to the top-level YAML config bundle.",
+    )
+    dashboard_parser.add_argument(
         "--results",
         type=Path,
         default=Path("results/results_summary.json"),
@@ -98,6 +114,12 @@ def build_parser() -> argparse.ArgumentParser:
     sensitivity_parser = subparsers.add_parser(
         "sensitivity",
         help="Run the reduced hyperparameter sensitivity sweep.",
+    )
+    sensitivity_parser.add_argument(
+        "--config",
+        type=Path,
+        default=cfg.DEFAULT_CONFIG_PATH,
+        help="Path to the top-level YAML config bundle.",
     )
     sensitivity_parser.add_argument(
         "--output-dir",

@@ -1,7 +1,12 @@
 import os
 import subprocess
 import sys
+import json
 from pathlib import Path
+
+import yaml
+
+from v3_health.core import config as cfg
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -55,6 +60,40 @@ def test_cli_run_writes_to_repo_root_results(tmp_path):
     assert result.returncode == 0, result.stderr
     assert (output_dir / "results_summary.json").exists()
     assert not (REPO_ROOT / "src" / "v3_health" / "results").exists()
+
+
+def test_cli_run_honors_config_path_and_runtime_overrides(tmp_path):
+    config_path = tmp_path / "custom.yaml"
+    payload = yaml.safe_load(Path(cfg.DEFAULT_CONFIG_PATH).read_text())
+    payload["benchmark"]["n_seeds"] = 2
+    payload["benchmark"]["n_patients_per_phase"] = 99
+    config_path.write_text(yaml.safe_dump(payload, sort_keys=False))
+    output_dir = tmp_path / "results"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "v3_health.cli",
+            "run",
+            "--config",
+            str(config_path),
+            "--output-dir",
+            str(output_dir),
+            "--n-patients-per-phase",
+            "6",
+        ],
+        cwd=REPO_ROOT,
+        env=_env(),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    summary = json.loads((output_dir / "results_summary.json").read_text())
+    assert summary["meta"]["n_seeds"] == 2
+    assert summary["meta"]["n_patients_per_phase"] == 6
 
 
 def test_cli_dashboard_generates_html(tmp_path):

@@ -1,0 +1,24 @@
+scenario: treatment_allocation_confounding
+label: Treatment allocation confounding
+mechanism: SES-linked distortion in observed risk score
+expected_qualitative_effect: Observed risk can track SES-linked access rather than latent treatment need.
+
+phases:
+  normal:
+    active_bias_mechanism: SES risk-score bias
+    direction_of_shift: Low SES inflated risk; high SES deflated risk.
+    parameters:
+      s1_ses_bias_normal: {0: 0.15, 1: 0.00, 2: -0.15}
+      s1_risk_noise_normal: 0.10
+  surface_shift:
+    active_bias_mechanism: SES risk-score bias removed with slightly noisier risk
+    direction_of_shift: SES risk-score bias goes to zero.
+    parameters:
+      s1_ses_bias_surface_shift: {0: 0.00, 1: 0.00, 2: 0.00}
+      s1_risk_noise_shift: 0.12
+  adversarial:
+    active_bias_mechanism: Amplified SES risk-score bias
+    direction_of_shift: Low SES inflation grows and high SES deflation grows.
+    parameters:
+      s1_ses_bias_adversarial: {0: 0.25, 1: 0.00, 2: -0.20}
+      s1_risk_noise_adversarial: 0.08

@@ -32,6 +32,9 @@ phases.
 ```text
 v3-health-benchmark/
 ├── artifacts/release/     # Curated release snapshot and manifest
+├── configs/               # Canonical benchmark configuration source
+├── docs/                  # Reviewer-facing reproducibility documentation
+├── scripts/tables/        # Config-derived table generators
 ├── src/v3_health/         # Standalone healthcare benchmark package
 ├── tests/                 # Package and CLI verification
 ├── LICENSE
@@ -64,7 +67,9 @@ pip install -e .[dev]
 Run the full benchmark:
 
 ```bash
-v3-health run --output-dir results
+v3-health run \
+  --config configs/v3_health_default.yaml \
+  --output-dir results
 ```
 
 Render the dashboard:
@@ -79,6 +84,7 @@ Run the reduced hyperparameter sensitivity sweep:
 
 ```bash
 v3-health sensitivity \
+  --config configs/v3_health_default.yaml \
   --output-dir results/sensitivity \
   --n-patients-per-phase 120 \
   --n-seeds 3 \
@@ -89,6 +95,19 @@ Run the test suite:
 
 ```bash
 pytest
+```
+
+Generate scenario and agent specification tables from the same YAML config
+used by the runtime:
+
+```bash
+PYTHONPATH=src python3 scripts/tables/generate_scenario_spec_table.py \
+  --config configs/v3_health_default.yaml \
+  --output-dir outputs/tables
+
+PYTHONPATH=src python3 scripts/tables/generate_agent_spec_table.py \
+  --config configs/v3_health_default.yaml \
+  --output-dir outputs/tables
 ```
 
 ## Expected outputs
@@ -109,6 +128,10 @@ The dashboard command writes `results/dashboard.html`.
 
 The canonical checked-in publication snapshot lives under
 `artifacts/release/`.
+
+The canonical parameter source lives under `configs/`. See
+`docs/repository_map.md`, `docs/scm_specification.md`, and
+`docs/agent_specifications.md` for reviewer-facing maps from config to code.
 
 ## Runtime notes
 

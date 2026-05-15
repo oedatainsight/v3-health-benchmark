@@ -1,0 +1,5 @@
+agent: causal_light
+label: Causal Light
+family: structural-prior ablation
+hyperparams:
+  causal_light_risk_blend: 0.30

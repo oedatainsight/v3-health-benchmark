@@ -82,10 +82,47 @@ def _generate_measurement_prob(access: float, rng: np.random.Generator) -> float
 
 def _generate_demographics(ses: int, rng: np.random.Generator) -> dict[str, float]:
     return {
-        "insurance_tier": float(np.clip(ses / 2.0 + rng.normal(0, 0.05), 0, 1)),
-        "zip_deprivation": float(np.clip(1.0 - ses / 2.0 + rng.normal(0, 0.08), 0, 1)),
-        "education_proxy": float(np.clip(ses / 2.0 + rng.normal(0, 0.10), 0, 1)),
+        "insurance_tier": float(np.clip(
+            ses / 2.0 + rng.normal(0, C["demographic_noise_insurance_tier"]), 0, 1
+        )),
+        "zip_deprivation": float(np.clip(
+            1.0 - ses / 2.0 + rng.normal(0, C["demographic_noise_zip_deprivation"]), 0, 1
+        )),
+        "education_proxy": float(np.clip(
+            ses / 2.0 + rng.normal(0, C["demographic_noise_education_proxy"]), 0, 1
+        )),
     }
+
+
+def _generate_shared_labs(
+    true_health: float,
+    measurement_prob: float,
+    rng: np.random.Generator,
+) -> tuple[dict[str, float | None], int]:
+    labs: dict[str, float | None] = {}
+    n_missing = 0
+    for name, (intercept, slope, noise) in C["shared_lab_specs"].items():
+        true_val = intercept + slope * true_health + rng.normal(0, noise)
+        if rng.random() < measurement_prob:
+            labs[name] = float(np.clip(true_val, 0, 1))
+        else:
+            labs[name] = None
+            n_missing += 1
+    return labs, n_missing
+
+
+def _presenting_signal(true_health: float, rng: np.random.Generator) -> float:
+    return float(np.clip(true_health + rng.normal(0, C["presenting_noise_std"]), 0, 1))
+
+
+def _prior_utilization(access: float, rng: np.random.Generator) -> float:
+    return float(np.clip(
+        C["prior_utilization_intercept"]
+        + C["prior_utilization_access_weight"] * access
+        + rng.normal(0, C["prior_utilization_noise_std"]),
+        0,
+        1,
+    ))
 
 
 # ---------------------------------------------
@@ -109,33 +146,17 @@ def generate_scenario1(
     measurement_prob = _generate_measurement_prob(access, rng)
     optimal = _compute_optimal_treatment(true_health)
 
-    presenting = float(np.clip(true_health + rng.normal(0, 0.15), 0, 1))
-
-    lab_specs = {
-        "blood_pressure": (0.3, 0.5, 0.10),
-        "glucose":        (0.2, 0.4, 0.12),
-        "creatinine":     (0.1, 0.6, 0.08),
-        "hemoglobin":     (0.8, -0.3, 0.10),
-        "inflammatory":   (0.1, 0.7, 0.15),
-    }
-    labs: dict[str, float | None] = {}
-    n_missing = 0
-    for name, (intercept, slope, noise) in lab_specs.items():
-        true_val = intercept + slope * true_health + rng.normal(0, noise)
-        if rng.random() < measurement_prob:
-            labs[name] = float(np.clip(true_val, 0, 1))
-        else:
-            labs[name] = None
-            n_missing += 1
+    presenting = _presenting_signal(true_health, rng)
+    labs, n_missing = _generate_shared_labs(true_health, measurement_prob, rng)
 
     if phase == "normal":
         ses_bias = C["s1_ses_bias_normal"][ses]
         noise = C["s1_risk_noise_normal"]
         group_bias = C["group_risk_bias_normal"][group]
     elif phase == "surface_shift":
-        ses_bias = 0.0
+        ses_bias = C["s1_ses_bias_surface_shift"][ses]
         noise = C["s1_risk_noise_shift"]
-        group_bias = C["group_risk_bias_normal"][group]
+        group_bias = C["group_risk_bias_surface_shift"][group]
     elif phase == "adversarial":
         ses_bias = C["s1_ses_bias_adversarial"][ses]
         noise = C["s1_risk_noise_adversarial"]
@@ -146,7 +167,7 @@ def generate_scenario1(
     observed_risk = float(np.clip(
         true_health + ses_bias + group_bias + rng.normal(0, noise), 0, 1
     ))
-    prior_util = float(np.clip(0.2 + 0.6 * access + rng.normal(0, 0.1), 0, 1))
+    prior_util = _prior_utilization(access, rng)
 
     latent = LatentPatientState(
         patient_id=patient_id, ses=ses, true_health=true_health,
@@ -180,22 +201,38 @@ def generate_scenario2(
     optimal = _compute_optimal_treatment(true_health)
 
     if phase == "normal":
-        measurement_prob = 0.2 + 0.7 * access
+        measurement_prob = (
+            C["s2_measurement_intercept_normal"]
+            + C["s2_measurement_access_weight_normal"] * access
+        )
     elif phase == "surface_shift":
-        symptom_driven = 0.3 * true_health
-        measurement_prob = 0.2 + 0.4 * access + symptom_driven
+        measurement_prob = (
+            C["s2_measurement_intercept_surface_shift"]
+            + C["s2_measurement_access_weight_surface_shift"] * access
+            + C["s2_measurement_health_weight_surface_shift"] * true_health
+        )
     elif phase == "adversarial":
         ses_penalty = C["s2_adversarial_ses_penalty"][ses]
-        measurement_prob = 0.2 + 0.5 * access - ses_penalty
+        measurement_prob = (
+            C["s2_measurement_intercept_adversarial"]
+            + C["s2_measurement_access_weight_adversarial"] * access
+            - ses_penalty
+        )
     else:
         raise ValueError(f"Unknown phase: {phase}")
 
-    measurement_prob = float(np.clip(measurement_prob + rng.normal(0, 0.05), 0.05, 0.95))
+    measurement_prob = float(np.clip(
+        measurement_prob + rng.normal(0, C["s2_measurement_noise_std"]), 0.05, 0.95
+    ))
 
     labs: dict[str, float | None] = {}
     n_missing = 0
     for lab_name in C["s2_lab_names"]:
-        true_val = 0.2 + 0.6 * true_health + rng.normal(0, 0.12)
+        true_val = (
+            C["s2_lab_intercept"]
+            + C["s2_lab_true_health_weight"] * true_health
+            + rng.normal(0, C["s2_lab_noise_std"])
+        )
         if rng.random() < measurement_prob:
             labs[lab_name] = float(np.clip(true_val, 0, 1))
         else:
@@ -211,12 +248,14 @@ def generate_scenario2(
     # Phase-dependent group-linked bias on the observed risk aggregate.
     if phase == "adversarial":
         group_bias = C["group_risk_bias_adversarial"][group]
+    elif phase == "surface_shift":
+        group_bias = C["group_risk_bias_surface_shift"][group]
     else:
         group_bias = C["group_risk_bias_normal"][group]
     observed_risk = float(np.clip(observed_risk + group_bias, 0, 1))
 
-    presenting = float(np.clip(true_health + rng.normal(0, 0.15), 0, 1))
-    prior_util = float(np.clip(0.2 + 0.6 * access + rng.normal(0, 0.1), 0, 1))
+    presenting = _presenting_signal(true_health, rng)
+    prior_util = _prior_utilization(access, rng)
 
     latent = LatentPatientState(
         patient_id=patient_id, ses=ses, true_health=true_health,
@@ -257,8 +296,8 @@ def generate_scenario3(
         group_bias = C["group_risk_bias_normal"][group]
     elif phase == "surface_shift":
         util_penalty = C["s3_ses_util_penalty_surface_shift"][ses]
-        risk_bias = C["s3_ses_risk_bias_normal"][ses]
-        group_bias = C["group_risk_bias_normal"][group]
+        risk_bias = C["s3_ses_risk_bias_surface_shift"][ses]
+        group_bias = C["group_risk_bias_surface_shift"][group]
     elif phase == "adversarial":
         util_penalty = C["s3_ses_util_penalty_adversarial"][ses]
         risk_bias = C["s3_ses_risk_bias_adversarial"][ses]
@@ -267,32 +306,22 @@ def generate_scenario3(
         raise ValueError(f"Unknown phase: {phase}")
 
     model_risk = float(np.clip(
-        true_health + risk_bias + group_bias + rng.normal(0, 0.10), 0, 1
+        true_health + risk_bias + group_bias + rng.normal(0, C["s3_model_risk_noise_std"]),
+        0,
+        1,
     ))
 
     hist_util = float(np.clip(
-        0.2 + 0.6 * access - util_penalty + 0.2 * true_health + rng.normal(0, 0.1),
+        C["s3_hist_util_intercept"]
+        + C["s3_hist_util_access_weight"] * access
+        - util_penalty
+        + C["s3_hist_util_health_weight"] * true_health
+        + rng.normal(0, C["s3_hist_util_noise_std"]),
         0, 1
     ))
 
-    presenting = float(np.clip(true_health + rng.normal(0, 0.15), 0, 1))
-
-    lab_specs = {
-        "blood_pressure": (0.3, 0.5, 0.10),
-        "glucose":        (0.2, 0.4, 0.12),
-        "creatinine":     (0.1, 0.6, 0.08),
-        "hemoglobin":     (0.8, -0.3, 0.10),
-        "inflammatory":   (0.1, 0.7, 0.15),
-    }
-    labs: dict[str, float | None] = {}
-    n_missing = 0
-    for name, (intercept, slope, noise) in lab_specs.items():
-        true_val = intercept + slope * true_health + rng.normal(0, noise)
-        if rng.random() < measurement_prob:
-            labs[name] = float(np.clip(true_val, 0, 1))
-        else:
-            labs[name] = None
-            n_missing += 1
+    presenting = _presenting_signal(true_health, rng)
+    labs, n_missing = _generate_shared_labs(true_health, measurement_prob, rng)
 
     latent = LatentPatientState(
         patient_id=patient_id, ses=ses, true_health=true_health,

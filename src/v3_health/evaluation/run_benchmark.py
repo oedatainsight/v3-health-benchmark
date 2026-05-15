@@ -157,7 +157,10 @@ def run_full_benchmark(output_dir: str = "results"):
     auditor = InterventionAuditor(str(output_path))
     active_agents = list(AGENTS.keys())
     agent_labels = {
-        agent: AGENT_LABELS.get(agent, agent.replace("_", " ").title())
+        agent: C.get("agent_labels", {}).get(
+            agent,
+            AGENT_LABELS.get(agent, agent.replace("_", " ").title()),
+        )
         for agent in active_agents
     }
     primary_claim_agent = _primary_claim_agent()
@@ -225,7 +228,10 @@ def run_full_benchmark(output_dir: str = "results"):
             "primary_claim_label": agent_labels.get(primary_claim_agent, primary_claim_agent),
             "agent_labels": agent_labels,
             "agent_families": {
-                agent: AGENT_FAMILIES.get(agent, "unspecified")
+                agent: C.get("agent_families", {}).get(
+                    agent,
+                    AGENT_FAMILIES.get(agent, "unspecified"),
+                )
                 for agent in active_agents
             },
             "query_support": {
@@ -233,12 +239,19 @@ def run_full_benchmark(output_dir: str = "results"):
                 for agent in active_agents
             },
             "counterfactual_note": COUNTERFACTUAL_NOTE,
-            "confidence_interval": "95% Student-t CI on n=12 seed means",
-            "significance_test": "paired exact sign-flip permutation test over matched seeds",
-            "effect_size": "Cohen's dz over paired seed deltas",
-            "primary_estimand": (
+            "confidence_interval": C.get(
+                "confidence_interval",
+                "95% Student-t CI on n=12 seed means",
+            ),
+            "significance_test": C.get(
+                "significance_test",
+                "paired exact sign-flip permutation test over matched seeds",
+            ),
+            "effect_size": C.get("effect_size", "Cohen's dz over paired seed deltas"),
+            "primary_estimand": C.get(
+                "primary_estimand",
                 "matched-seed drop in success_rate from normal to adversarial "
-                "with agent state carried across the full three-phase trajectory"
+                "with agent state carried across the full three-phase trajectory",
             ),
             "phase_protocol": (
                 "carry_state_across_phases"

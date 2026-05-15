@@ -1,0 +1,31 @@
+scenario: historical_bias_feedback
+label: Historical bias feedback
+mechanism: SES-linked utilization history and risk calibration artifacts
+expected_qualitative_effect: Historical utilization and risk scores can reflect past policy rather than patient biology.
+
+parameters:
+  s3_model_risk_noise_std: 0.10
+  s3_hist_util_intercept: 0.20
+  s3_hist_util_access_weight: 0.60
+  s3_hist_util_health_weight: 0.20
+  s3_hist_util_noise_std: 0.10
+
+phases:
+  normal:
+    active_bias_mechanism: Historical utilization penalty and SES risk bias
+    direction_of_shift: Low SES has lower recorded utilization and higher model risk.
+    parameters:
+      s3_ses_risk_bias_normal: {0: 0.15, 1: 0.05, 2: -0.05}
+      s3_ses_util_penalty_normal: {0: 0.20, 1: 0.08, 2: 0.00}
+  surface_shift:
+    active_bias_mechanism: Utilization penalty relaxes while risk bias remains at normal level
+    direction_of_shift: Historical utilization bias is reduced.
+    parameters:
+      s3_ses_risk_bias_surface_shift: {0: 0.15, 1: 0.05, 2: -0.05}
+      s3_ses_util_penalty_surface_shift: {0: 0.05, 1: 0.02, 2: 0.00}
+  adversarial:
+    active_bias_mechanism: Amplified utilization penalty and SES risk bias
+    direction_of_shift: Low SES utilization depression and risk inflation both grow.
+    parameters:
+      s3_ses_risk_bias_adversarial: {0: 0.25, 1: 0.08, 2: -0.08}
+      s3_ses_util_penalty_adversarial: {0: 0.30, 1: 0.12, 2: 0.00}

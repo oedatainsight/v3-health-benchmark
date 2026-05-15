@@ -33,7 +33,7 @@ from v3_health.core.config import AGENT_HYPERPARAMS as _HP
 
 
 _THRESHOLDS = tuple(_HP["action_thresholds"])
-_RISK_BLEND = 0.30
+_RISK_BLEND = float(_HP["causal_light_risk_blend"])
 
 
 def _score_to_action(score: float) -> int:

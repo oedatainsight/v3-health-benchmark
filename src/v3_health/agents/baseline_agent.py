@@ -31,19 +31,20 @@ from __future__ import annotations
 
 from .base_agent import BaseAgent
 from v3_health.core.types import AgentObservation
+from v3_health.core.config import AGENT_HYPERPARAMS as _HP
 
 
 # Treatment-level thresholds (score in [0, 1] -> action 0..3)
-_THRESHOLDS = (0.25, 0.50, 0.75)
+_THRESHOLDS = tuple(_HP["baseline_action_thresholds"])
 # Action constants
 _MONITOR, _STANDARD, _AGGRESSIVE, _CRITICAL = 0, 1, 2, 3
 # Policy parameters
-_MAX_MISSING_BEFORE_FAILSTATE = 0.60
-_DISAGREEMENT_ESCALATION = 0.35
-_FAILSTATE_SAFETY_MARGIN = 0.10
-_ADAPTIVE_WINDOW = 30
-_ADAPTIVE_FAILURE_TRIGGER = 0.40
-_ADAPTIVE_CAUTION_BUMP = 0.05
+_MAX_MISSING_BEFORE_FAILSTATE = float(_HP["baseline_max_missing_before_failstate"])
+_DISAGREEMENT_ESCALATION = float(_HP["baseline_disagreement_escalation"])
+_FAILSTATE_SAFETY_MARGIN = float(_HP["baseline_failstate_safety_margin"])
+_ADAPTIVE_WINDOW = int(_HP["baseline_adaptive_window"])
+_ADAPTIVE_FAILURE_TRIGGER = float(_HP["baseline_adaptive_failure_trigger"])
+_ADAPTIVE_CAUTION_BUMP = float(_HP["baseline_adaptive_caution_bump"])
 
 
 def _score_to_action(score: float) -> int:

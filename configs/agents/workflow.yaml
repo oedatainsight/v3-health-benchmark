@@ -1,0 +1,17 @@
+agent: workflow
+label: Workflow
+family: adaptive workflow heuristic
+hyperparams:
+  action_thresholds: [0.25, 0.50, 0.75]
+  red_flag_symptom: 0.85
+  red_flag_floor: 0.75
+  low_avail_threshold: 0.40
+  disagree_spread: 0.35
+  adapt_every: 50
+  adapt_blend: 0.30
+  adapt_window: 200
+  mnar_bump_workflow_base: 0.03
+  mnar_bump_workflow_slope: 0.07
+  workflow_initial_weight_symptom: 0.40
+  workflow_initial_weight_labs: 0.30
+  workflow_initial_weight_risk: 0.30

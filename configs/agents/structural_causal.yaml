@@ -1,0 +1,20 @@
+agent: structural_causal
+label: Structural Causal
+family: explicit structural causal model
+hyperparams:
+  structural_state_centers: [0.125, 0.375, 0.625, 0.875]
+  structural_feature_std_floor: 0.08
+  structural_bias_window: 240
+  structural_exploration_steps: 240
+  structural_exploration_weight: 0.10
+  structural_outcome_prior_alpha: 1.0
+  structural_outcome_prior_beta: 1.0
+  structural_bias_ewma: 0.35
+  structural_bias_clip: 0.45
+  structural_state_prior_mass: 4.0
+  structural_likelihood_weight_symptom: 1.15
+  structural_likelihood_weight_lab: 0.95
+  structural_likelihood_weight_risk: 0.85
+  structural_critical_posterior_threshold: 0.35
+  structural_high_severity_mass_threshold: 0.55
+  structural_high_severity_need_threshold: 1.80

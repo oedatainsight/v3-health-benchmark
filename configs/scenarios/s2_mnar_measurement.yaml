@@ -1,0 +1,43 @@
+scenario: missing_data_bias
+label: Missing data bias
+mechanism: Unequal lab availability and missing-not-at-random risk
+expected_qualitative_effect: Missing labs can make observed risk look artificially normal.
+
+parameters:
+  s2_n_labs: 8
+  s2_lab_names:
+    - complete_blood_count
+    - metabolic_panel
+    - liver_function
+    - cardiac_markers
+    - thyroid
+    - coagulation
+    - urinalysis
+    - imaging
+  s2_default_risk_when_no_labs: 0.30
+  s2_lab_intercept: 0.20
+  s2_lab_true_health_weight: 0.60
+  s2_lab_noise_std: 0.12
+  s2_measurement_noise_std: 0.05
+
+phases:
+  normal:
+    active_bias_mechanism: Measurement probability follows access
+    direction_of_shift: Low access produces more missing labs.
+    parameters:
+      s2_measurement_intercept_normal: 0.20
+      s2_measurement_access_weight_normal: 0.70
+  surface_shift:
+    active_bias_mechanism: Measurement probability follows access and symptom severity
+    direction_of_shift: Symptom-driven testing partly counteracts access-driven missingness.
+    parameters:
+      s2_measurement_intercept_surface_shift: 0.20
+      s2_measurement_access_weight_surface_shift: 0.40
+      s2_measurement_health_weight_surface_shift: 0.30
+  adversarial:
+    active_bias_mechanism: Access-linked measurement plus SES-specific penalty
+    direction_of_shift: Low SES receives the largest additional measurement penalty.
+    parameters:
+      s2_measurement_intercept_adversarial: 0.20
+      s2_measurement_access_weight_adversarial: 0.50
+      s2_adversarial_ses_penalty: {0: 0.30, 1: 0.15, 2: 0.05}

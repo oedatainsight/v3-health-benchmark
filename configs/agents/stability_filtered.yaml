@@ -1,0 +1,13 @@
+agent: stability_filtered
+label: Stability-Filtered
+family: structurally constrained adaptive heuristic
+hyperparams:
+  stratum_edges: [0.33, 0.66]
+  mnar_bump_causal: 0.10
+  mnar_threshold_causal: 0.50
+  stable_threshold: 0.55
+  unstable_threshold: 0.40
+  drift_normalization: 0.40
+  action_success_override_floor: 0.55
+  action_success_max_level_shift: 1
+  causal_window: 80

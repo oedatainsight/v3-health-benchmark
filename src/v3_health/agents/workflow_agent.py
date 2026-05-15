@@ -47,9 +47,9 @@ _ADAPT_BLEND = float(_HP["adapt_blend"])
 _ADAPT_WINDOW = int(_HP["adapt_window"])
 _MNAR_BASE = float(_HP["mnar_bump_workflow_base"])
 _MNAR_SLOPE = float(_HP["mnar_bump_workflow_slope"])
-_INIT_W_SYMPTOM = 0.40
-_INIT_W_LABS = 0.30
-_INIT_W_RISK = 0.30
+_INIT_W_SYMPTOM = float(_HP["workflow_initial_weight_symptom"])
+_INIT_W_LABS = float(_HP["workflow_initial_weight_labs"])
+_INIT_W_RISK = float(_HP["workflow_initial_weight_risk"])
 
 
 def _score_to_action(score: float) -> int:
